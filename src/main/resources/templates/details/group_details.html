@@ -1,0 +1,205 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Schedules</title>
+
+    <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} "/>
+    <link th:rel="stylesheet" th:href="@{/css/table.css}">
+    <link th:rel="stylesheet" th:href="@{/css/nav.css}">
+
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg static-top">
+    <div class="container">
+        <a class="navbar-brand" href="/main">Klub lekkoatletyczny</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+                aria-controls="navbarResponsive"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ml-auto">
+
+                <li class="nav-item active">
+                    <div class="dropdown">
+                        <a class="nav-link" href="#">Tabele</a>
+                        <div class="dropdown-content">
+                            <a class="nav-link" href="/workers" th:if="${userRoles.contains('ADMIN')}">Pracownicy</a>
+                            <a class="nav-link" href="/coaches">Trenerzy </a>
+                            <a class="nav-link" href="/physiotherapists">Fizjoterapeuci</a>
+                            <a class="nav-link" href="/members" th:if="${userRoles.contains('ADMIN') || userRoles.contains('PHYSIOTHERAPIST')}">Członkowie </a>
+                            <a class="nav-link" href="/groups" th:if="${userRoles.contains('ADMIN') || userRoles.contains('COACH') || userRoles.contains('PHYSIOTHERAPIST') || userRoles.contains('MEMBER')}">Grupy </a>
+                            <a class="nav-link" href="/competitions">Zawody </a>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/main}">Strona główna</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/login}" th:if = "${userRoles.isEmpty()}">Zaloguj</a>
+                    <a class="nav-link" href="#" onclick="logoutForm.submit(); return false;" th:unless = "${userRoles.isEmpty()}">Wyloguj</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:inline="text" style="color:white;">
+                        <b>[[${#httpServletRequest.remoteUser}]]</b></a>
+                </li>
+
+                <form id="logoutForm" method="post" th:action="@{/index}" th:unless="${userRoles.isEmpty()}">
+                    <button type="submit" style="display: none;"></button>
+                </form>
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+
+<div class="table-container">
+    <h1 th:text="'Członkowie grupy ' + ${group.ageCategory} + ' ' + ${group.discipline.disciplineName} " th:if="${userRoles.contains('ADMIN') || userRoles.contains('COACH') || userRoles.contains('PHYSIOTHERAPIST')}"></h1>
+
+
+    <div class="table-content">
+        <!-- Table -->
+        <table border = "1" cellpadding = "10"> <!-– border – obramowanie, cellpadding – rozmiar komórki -->
+            <!-- Table header -->
+            <thead>
+            <tr th:if="${userRoles.contains('ADMIN') || userRoles.contains('COACH') || userRoles.contains('PHYSIOTHERAPIST')}"> <!-- Table row -->
+                <th></th>
+                <th>Imię</th>
+                <th>Nazwisko</th>
+                <th>PESEL</th>
+                <th>Data urodzenia</th>
+                <th>Data zapisania</th>
+                <th>Data wypisania</th>
+                <th>Płeć</th>
+                <th>Ważność badań</th>
+                <th>Miasto</th>
+                <th>Ulica</th>
+                <th>Numer lokalu</th>
+                <th>Kod pocztowy</th>
+                <th></th>
+            </tr>
+            <tr th:if="${userRoles.contains('MEMBER')}"> <!-- Table row -->
+                <th></th>
+                <th>Imię</th>
+                <th>Nazwisko</th>
+                <th></th>
+            </tr>
+            </thead>
+            <!-- Table body -->
+            <tbody>
+            <tr th:each = "member : ${members}" th:if="${userRoles.contains('ADMIN') || userRoles.contains('COACH') || userRoles.contains('PHYSIOTHERAPIST')}">
+                <td></td>
+                <td th:text = "${member.firstName}">Imię</td>
+                <td th:text = "${member.lastName}">Nazwisko</td>
+                <td th:text = "${member.pesel}">PESEL</td>
+                <td th:text = "${member.dateOfBirth}">Data urodzenia</td>
+                <td th:text = "${member.registrationDate}">Data zapisania</td>
+                <td th:text = "${member.withdrawalDate}">Data wypisania</td>
+                <td th:text = "${member.gender}">Płeć</td>
+                <td th:text = "${member.medicalExaminationValidity}">Ważność badań</td>
+                <td th:text = "${member.address.city}">Miasto</td>
+                <td th:text = "${member.address.street}">Ulica</td>
+                <td th:text = "${member.address.apartmentNumber}">Numer lokalu</td>
+                <td th:text = "${member.address.mail.postalCode}">Kod pocztowy</td>
+                <td th:if="${userRoles.contains('ADMIN') || userRoles.contains('COACH')}">
+                    <a th:if="${member.withdrawalDate == null}" th:href="@{'/members/edit/' + ${member.memberNumber}}">Edytuj</a>
+                    <a th:if="${member.withdrawalDate == null}" th:href="@{'/members/withdraw/' + ${member.memberNumber}}" onclick="return confirm('Czy na pewno chcesz usunąć członka?')">Wypisz</a>
+                </td>
+                <td th:unless="${userRoles.contains('ADMIN') || userRoles.contains('COACH')}"></td>
+            </tr>
+            <tr th:each = "member : ${members}" th:if="${userRoles.contains('MEMBER')}">
+                <td></td>
+                <td th:text = "${member.firstName}">Imię</td>
+                <td th:text = "${member.lastName}">Nazwisko</td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+<div class="table-container">
+    <h1>Trenerzy</h1>
+
+    <div class="table-content">
+        <!-- Table -->
+        <table border = "1" cellpadding = "10"> <!-– border – obramowanie, cellpadding – rozmiar komórki -->
+            <!-- Table header -->
+            <thead>
+            <tr> <!-- Table row -->
+                <th></th>
+                <th>Imię</th>
+                <th>Nazwisko</th>
+                <th>Kwalifikacje</th>
+                <th>Doświadczenie trenerskie</th>
+                <th></th>
+            </tr>
+            </thead>
+            <!-- Table body -->
+            <tbody>
+            <tr th:each = "coach : ${coaches}" th:onclick="|window.location.href='@{/workers/{employeeNumber}(employeeNumber=${coach.employeeNumber})}'|" th:title="szczegóły">
+                <td></td>
+                <td th:text = "${coach.firstName}">Imię</td>
+                <td th:text = "${coach.lastName}">Nazwisko</td>
+                <td th:text = "${coach.qualifications}">Kwalifikacje</td>
+                <td th:text = "${coach.coachingExperience}">Doświadczenie</td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+<div class="table-container">
+    <h1>Terminy treningów</h1>
+
+
+    <a th:href="@{'/groups/' + ${groupNumber} + '/new'}" th:if="${userRoles.contains('ADMIN') || userRoles.contains('COACH')}">Dodaj Termin</a>
+    <br>
+
+    <div class="table-content">
+        <!-- Table -->
+        <table border = "1" cellpadding = "10"> <!-– border – obramowanie, cellpadding – rozmiar komórki -->
+            <!-- Table header -->
+            <thead>
+            <tr> <!-- Table row -->
+                <th></th>
+
+                <th>Dzień tygodnia</th>
+                <th>Godzina rozpoczęcia</th>
+                <th>Godzina zakończenia</th>
+                <th></th>
+            </tr>
+            </thead>
+            <!-- Table body -->
+            <tbody>
+            <tr th:each = "schedule : ${schedules}">
+                <td></td>
+                <td th:text = "${schedule.day}">Dzień tygodnia</td>
+                <td th:text = "${schedule.startTime}">Godzina rozpoczęcia</td>
+                <td th:text = "${schedule.endTime}">Godzina zakończenia</td>
+                <td th:if="${userRoles.contains('ADMIN') || userRoles.contains('COACH')}">
+                    <a th:href="@{'/groups/' + ${groupNumber} + '/edit/' + ${schedule.scheduleNumber}}">Edytuj</a>
+                    <br />
+                    <a th:href="@{'/groups/' + ${groupNumber} + '/delete/' + ${schedule.scheduleNumber}}">Usuń</a>
+                </td>
+                <td th:unless="${userRoles.contains('ADMIN') || userRoles.contains('COACH')}"></td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+<script th:src="@{/resources/static/js/logout.js}"></script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Coaches</title>
+
+    <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} "/>
+    <link th:rel="stylesheet" th:href="@{/css/nav.css}">
+    <link th:rel="stylesheet" th:href="@{/css/table.css}">
+    <link th:rel="stylesheet" th:href="@{/css/details.css}">
+
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg static-top">
+    <div class="container">
+        <a class="navbar-brand" href="/main">Klub lekkoatletyczny</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+                aria-controls="navbarResponsive"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ml-auto">
+
+                <li class="nav-item active">
+                    <div class="dropdown">
+                        <a class="nav-link" href="#">Tabele</a>
+                        <div class="dropdown-content">
+                            <a class="nav-link" href="/workers" th:if="${userRoles.contains('ADMIN')}">Pracownicy</a>
+                            <a class="nav-link" href="/coaches">Trenerzy </a>
+                            <a class="nav-link" href="/physiotherapists">Fizjoterapeuci</a>
+                            <a class="nav-link" href="/members" th:if="${userRoles.contains('ADMIN') || userRoles.contains('PHYSIOTHERAPIST')}">Członkowie </a>
+                            <a class="nav-link" href="/groups" th:if="${userRoles.contains('ADMIN') || userRoles.contains('COACH') || userRoles.contains('PHYSIOTHERAPIST') || userRoles.contains('MEMBER')}">Grupy </a>
+                            <a class="nav-link" href="/competitions">Zawody </a>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/main}">Strona główna</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/login}" th:if = "${userRoles.isEmpty()}">Zaloguj</a>
+                    <a class="nav-link" href="#" onclick="logoutForm.submit(); return false;" th:unless = "${userRoles.isEmpty()}">Wyloguj</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:inline="text" style="color:white;">
+                        <b>[[${#httpServletRequest.remoteUser}]]</b></a>
+                </li>
+
+                <form id="logoutForm" method="post" th:action="@{/index}" th:unless="${userRoles.isEmpty()}">
+                    <button type="submit" style="display: none;"></button>
+                </form>
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="title">
+    <h1>Trener</h1>
+</div>
+
+
+<div class="box-container">
+    <div class="box">
+        <div>
+            <div class="info">
+                <label>Imię</label>
+                <label th:text="${coach.firstName}"></label>
+            </div>
+            <div class="info">
+                <label>Nazwisko</label>
+                <label th:text="${coach.lastName}"></label>
+            </div>
+        </div>
+        <div>
+            <div class="info">
+                <label>Telefon</label>
+                <label th:text="${coach.phoneNumber}"></label>
+            </div>
+            <div class="info">
+                <label>Kwalifikacje</label>
+                <label th:text="${coach.qualifications}"></label>
+            </div>
+        </div>
+        <div>
+            <div class="info">
+                <label>Doświadczenie</label>
+                <label th:text="${coach.coachingExperience}"></label>
+            </div>
+        </div>
+    </div>
+    <div class="title">
+        <h2>Prowadzone grupy</h2>
+    </div>
+    <div class="table-container">
+        <div class="table-content">
+            <table border = "1" cellpadding = "10"> <!-– border – obramowanie, cellpadding – rozmiar komórki -->
+                <!-- Table header -->
+                <thead>
+                <tr> <!-- Table row -->
+                    <th></th>
+                    <th>Cena za miesiąc </th>
+                    <th>Maksymalna liczba członków</th>
+                    <th>Kategoria wiekowa</th>
+                    <th>Dyscyplina</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <!-- Table body -->
+                <tbody>
+                    <tr th:each = "group : ${groups}">
+                        <td></td>
+                        <td th:text = "${group.pricePerMonth}">Cena za miesiąc</td>
+                        <td th:text = "${group.maxNumberOfMembers}">Maksymalna liczba członków</td>
+                        <td th:text = "${group.ageCategory}">Kategoria wiekowa</td>
+                        <td th:text = "${group.discipline.disciplineName}">Dyscyplina</td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/resources/static/js/logout.js}"></script>
+</body>
+</html>

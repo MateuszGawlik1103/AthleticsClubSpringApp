@@ -1,0 +1,106 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Workers</title>
+
+    <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css}"/>
+    <link th:rel="stylesheet" th:href="@{/css/new.css}">
+    <link th:rel="stylesheet" th:href="@{/css/nav.css}">
+
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg static-top">
+    <div class="container">
+        <a class="navbar-brand" href="/static">Klub lekkoatletyczny</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+                aria-controls="navbarResponsive"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ml-auto">
+
+                <li class="nav-item active">
+                    <div class="dropdown">
+                        <a class="nav-link" href="#">Tabele</a>
+                        <div class="dropdown-content">
+                            <a class="nav-link" href="/workers" th:if="${userRoles.contains('ADMIN')}">Pracownicy</a>
+                            <a class="nav-link" href="/coaches">Trenerzy </a>
+                            <a class="nav-link" href="/physiotherapists">Fizjoterapeuci</a>
+                            <a class="nav-link" href="/members" th:if="${userRoles.contains('ADMIN') || userRoles.contains('PHYSIOTHERAPIST')}">Członkowie </a>
+                            <a class="nav-link" href="/groups" th:if="${userRoles.contains('ADMIN') || userRoles.contains('COACH') || userRoles.contains('PHYSIOTHERAPIST') || userRoles.contains('MEMBER')}">Grupy </a>
+                            <a class="nav-link" href="/competitions">Zawody </a>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/main}">Strona główna</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/login}" th:if = "${userRoles.isEmpty()}">Zaloguj</a>
+                    <a class="nav-link" href="#" onclick="logoutForm.submit(); return false;" th:unless = "${userRoles.isEmpty()}">Wyloguj</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:inline="text" style="color:white;">
+                        <b>[[${#httpServletRequest.remoteUser}]]</b></a>
+                </li>
+
+                <form id="logoutForm" method="post" th:action="@{/index}" th:unless="${userRoles.isEmpty()}">
+                    <button type="submit" style="display: none;"></button>
+                </form>
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+<div>
+    <h1>Dodaj termin</h1>
+    <div class="table-content">
+        <form th:action="@{/groups/{groupNumber}/save(groupNumber=${groupNumber})}" th:object="${schedule}" method="post">
+            <table border="1" cellpadding="10">
+
+                <tr>
+                    <td>Dzień tygodnia: </td>
+                    <td>
+                        <label>
+                            <select required th:field="*{day}">
+                                <option value="PN">Poniedziałek</option>
+                                <option value="WT">Wtorek</option>
+                                <option value="SR">Środa</option>
+                                <option value="CZW">Czwartek</option>
+                                <option value="PT">Piątek</option>
+                                <option value="SB">Sobota</option>
+                                <option value="ND">Niedziela</option>
+                            </select>
+                        </label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Godzina rozpoczęcia </td>
+                    <td><input type="text" required th:field="*{startTime}" pattern="(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]"></td>
+                </tr>
+                <tr>
+                    <td>Godzina zakończenia </td>
+                    <td><input type="text" required th:field="*{endTime}" pattern="(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]"></td>
+                </tr>
+
+                <tr>
+                    <td colspan="2"><button type="submit">Zapisz</button></td>
+                </tr>
+
+            </table>
+        </form>
+    </div>
+
+</div>
+<script th:src="@{/resources/static/js/logout.js}"></script>
+</body>
+</html>

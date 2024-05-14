@@ -1,0 +1,100 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Workers</title>
+
+  <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css}"/>
+  <link th:rel="stylesheet" th:href="@{/css/new.css}">
+  <link th:rel="stylesheet" th:href="@{/css/nav.css}">
+
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg static-top">
+  <div class="container">
+    <a class="navbar-brand" href="/static">Klub lekkoatletyczny</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+            aria-controls="navbarResponsive"
+            aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+      <ul class="navbar-nav ml-auto">
+
+        <li class="nav-item active">
+          <div class="dropdown">
+            <a class="nav-link" href="#">Tabele</a>
+            <div class="dropdown-content">
+              <a class="nav-link" href="/workers" th:if="${userRoles.contains('ADMIN')}">Pracownicy</a>
+              <a class="nav-link" href="/coaches">Trenerzy </a>
+              <a class="nav-link" href="/physiotherapists">Fizjoterapeuci</a>
+              <a class="nav-link" href="/members" th:if="${userRoles.contains('ADMIN') || userRoles.contains('PHYSIOTHERAPIST')}">Członkowie </a>
+              <a class="nav-link" href="/groups" th:if="${userRoles.contains('ADMIN') || userRoles.contains('COACH') || userRoles.contains('PHYSIOTHERAPIST') || userRoles.contains('MEMBER')}">Grupy </a>
+              <a class="nav-link" href="/competitions">Zawody </a>
+            </div>
+          </div>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/main}">Strona główna</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/login}" th:if = "${userRoles.isEmpty()}">Zaloguj</a>
+          <a class="nav-link" href="#" onclick="logoutForm.submit(); return false;" th:unless = "${userRoles.isEmpty()}">Wyloguj</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" th:inline="text" style="color:white;">
+            <b>[[${#httpServletRequest.remoteUser}]]</b></a>
+        </li>
+
+        <form id="logoutForm" method="post" th:action="@{/index}" th:unless="${userRoles.isEmpty()}">
+          <button type="submit" style="display: none;"></button>
+        </form>
+
+      </ul>
+    </div>
+  </div>
+</nav>
+
+
+<div>
+  <h1>Dodaj zawody</h1>
+  <div class="table-content">
+    <form action="#" th:action="@{/competitions/save}" th:object="${competition}" method="post">
+      <table border="1" cellpadding="10">
+        <tr>
+          <td>Data: </td>
+          <td>
+            <input type="date" required th:field="*{date}">
+        </tr>
+
+        <tr>
+          <td>Opis: </td>
+          <td><input type="text" required th:field="*{description}"></td>
+        </tr>
+
+        <tr>
+          <td>Adres: </td>
+          <td>
+            <input type="text" required placeholder="Miasto" th:field="*{address.city}">
+            <input type="text" placeholder="Ulica" th:field="*{address.street}">
+            <input type="text" required placeholder="Numer lokalu" th:field="*{address.apartmentNumber}">
+            <input type="text" required placeholder="Kod pocztowy" th:field="*{address.mail.postalCode}">
+          </td>
+        </tr>
+
+        <tr>
+          <td colspan="2"><button type="submit">Zapisz</button></td>
+        </tr>
+
+      </table>
+    </form>
+  </div>
+
+</div>
+<script th:src="@{/resources/static/js/logout.js}"></script>
+</body>
+</html>

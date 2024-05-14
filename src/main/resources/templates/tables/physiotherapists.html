@@ -1,0 +1,107 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Physiotherapists</title>
+
+  <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} "/>
+  <link th:rel="stylesheet" th:href="@{/css/nav.css}">
+  <link th:rel="stylesheet" th:href="@{/css/table.css}">
+
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg static-top">
+  <div class="container">
+    <a class="navbar-brand" href="/">Klub lekkoatletyczny</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+            aria-controls="navbarResponsive"
+            aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+      <ul class="navbar-nav ml-auto">
+
+        <li class="nav-item active">
+          <div class="dropdown">
+            <a class="nav-link" href="#">Tabele</a>
+            <div class="dropdown-content">
+              <a class="nav-link" href="/workers" th:if="${userRoles.contains('ADMIN')}">Pracownicy</a>
+              <a class="nav-link" href="/coaches">Trenerzy </a>
+              <a class="nav-link" href="/physiotherapists">Fizjoterapeuci</a>
+              <a class="nav-link" href="/members" th:if="${userRoles.contains('ADMIN') || userRoles.contains('PHYSIOTHERAPIST')}">Członkowie </a>
+              <a class="nav-link" href="/groups" th:if="${userRoles.contains('ADMIN') || userRoles.contains('COACH') || userRoles.contains('PHYSIOTHERAPIST') || userRoles.contains('MEMBER')}">Grupy </a>
+              <a class="nav-link" href="/competitions">Zawody </a>
+            </div>
+          </div>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/main}">Strona główna</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/login}" th:if = "${userRoles.isEmpty()}">Zaloguj</a>
+          <a class="nav-link" href="#" onclick="logoutForm.submit(); return false;" th:unless = "${userRoles.isEmpty()}">Wyloguj</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" th:inline="text" style="color:white;">
+            <b>[[${#httpServletRequest.remoteUser}]]</b></a>
+        </li>
+
+        <form id="logoutForm" method="post" th:action="@{/index}" th:unless="${userRoles.isEmpty()}">
+          <button type="submit" style="display: none;"></button>
+        </form>
+
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="table-container">
+  <h1>Fizjoterapeuci</h1>
+
+  <a href="/physiotherapists/new" th:if="${userRoles.contains('ADMIN')}">Dodaj fizjoterapeutę</a>
+  <br>
+
+  <div class="table-content">
+    <!-- Table -->
+    <table border = "1" cellpadding = "10"> <!-– border – obramowanie, cellpadding – rozmiar komórki -->
+      <!-- Table header -->
+      <thead>
+      <tr> <!-- Table row -->
+        <th></th>
+        <th>Nr pracownika</th> <!–- Table column -->
+        <th>Imię</th>
+        <th>Nazwisko</th>
+        <th>Specjalizacja</th>
+        <th>Kwalifikacje</th>
+        <th></th>
+      </tr>
+      </thead>
+      <!-- Table body -->
+      <tbody>
+      <tr th:each = "physio : ${physios}" th:onclick="|window.location.href='@{/workers/{employeeNumber}(employeeNumber=${physio.employeeNumber})}'|"
+          th:unless="${physio.dismissalDate != null}" title="Szczegóły">
+        <td></td>
+        <td th:text = "${physio.employeeNumber}">Nr pracownika</td>
+        <td th:text = "${physio.firstName}">Imię</td>
+        <td th:text = "${physio.lastName}">Nazwisko</td>
+        <td th:text = "${physio.specialization}">Kwalifikacje</td>
+        <td th:text = "${physio.qualifications}">Doświadczenie</td>
+        <td th:if="${userRoles.contains('ADMIN')}">
+          <a th:href="@{'/physiotherapists/edit/' + ${physio.employeeNumber}}">Edytuj</a>
+          <br>
+          <a class="edit-link" th:href="@{'/physiotherapists/dismiss/' + ${physio.employeeNumber}}" onclick="return confirm('Czy na pewno chcesz zwolnić fizjoterapeutę?')">Zwolnij</a>
+        </td>
+        <td th:unless="${userRoles.contains('ADMIN')}"></td>
+      </tr>
+      </tbody>
+    </table>
+
+  </div>
+</div>
+<script th:src="@{/resources/static/js/logout.js}"></script>
+</body>
+</html>

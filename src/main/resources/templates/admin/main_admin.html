@@ -1,0 +1,167 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Welcome Page</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} "/>
+    <link th:rel="stylesheet" th:href="@{/css/nav.css}">
+    <link th:rel="stylesheet" th:href="@{/css/index.css}">
+
+</head>
+<body>
+
+<!-- <body th:style="'background: url(/assets/img/img.png) no-repeat center center fixed;'"> -->
+
+
+<!--<style th:inline="text">-->
+<!--    body{-->
+<!--        background: url([[@{/assets/img/img.png}]])-->
+<!--        no-repeat center center fixed;-->
+<!--    }-->
+<!--</style>-->
+
+
+<!-- Navigation -->
+
+<nav class="navbar navbar-expand-lg static-top">
+    <div class="container">
+        <a class="navbar-brand" href="/">Klub lekkoatletyczny</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+                aria-controls="navbarResponsive"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ml-auto">
+
+                <li class="nav-item active">
+                    <div class="dropdown">
+                        <a class="nav-link" href="#">Tabele</a>
+                        <div class="dropdown-content">
+                            <a class="nav-link" href="/workers" th:if="${userRoles.contains('ADMIN')}">Pracownicy</a>
+                            <a class="nav-link" href="/coaches">Trenerzy </a>
+                            <a class="nav-link" href="/physiotherapists">Fizjoterapeuci</a>
+                            <a class="nav-link" href="/members" th:if="${userRoles.contains('ADMIN') || userRoles.contains('PHYSIOTHERAPIST')}">Członkowie </a>
+                            <a class="nav-link" href="/groups" th:if="${userRoles.contains('ADMIN') || userRoles.contains('COACH') || userRoles.contains('PHYSIOTHERAPIST') || userRoles.contains('MEMBER')}">Grupy </a>
+                            <a class="nav-link" href="/competitions">Zawody </a>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/main}">Strona główna</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/login}" th:if = "${userRoles.isEmpty()}">Zaloguj</a>
+                    <a class="nav-link" href="#" onclick="logoutForm.submit(); return false;" th:unless = "${userRoles.isEmpty()}">Wyloguj</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:inline="text" style="color:white;">
+                        <b>[[${#httpServletRequest.remoteUser}]]</b></a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!--Using images in page    -->
+<!-- <img th:src="@{/assets/img/img.png}" alt="Image" class="img-fluid"> -->
+
+
+<div class="row">
+    <div class="side">
+        <div class="account">
+            <div style="margin: 5px">
+                <h3 style="color: black; padding: 20px;">Administrator</h3>
+            </div>
+        </div>
+        <div class="side" style="display: flex">
+            <a class="login" href="#" onclick="logoutForm.submit(); return false;" th:unless = "${userRoles.isEmpty()}">Wyloguj</a>
+            <form id="logoutForm" method="post" th:action="@{/index}" th:unless="${userRoles.isEmpty()}">
+                <button type="submit" style="display: none;"></button>
+            </form>
+
+        </div>
+    </div>
+    <div class="main" th:object="${club}">
+        <h2 th:text="${club.name}"></h2>
+        <h5 th:text="'Data założenia ' + ${club.creationDate}"></h5>
+        <div class="fakeimg"></div>
+        <p>Promujemy aktywność fizyczną i pasję do lekkoatletyki!</p>
+        <p>
+            Klub Lekkoatletyczny to miejsce, gdzie pasjonaci biegania, skakania, rzutów
+            i wielu innych dyscyplin atletycznych spotykają się, aby razem rozwijać swoje
+            umiejętności, wspólnie trenować i czerpać radość z aktywności fizycznej.
+        </p>
+        <br>
+        <h2 style="text-align: center">Nasza oferta</h2>
+        <br>
+        <div class="box">
+            <div class="table-content">
+                <!-- Table -->
+                <table border = "1" cellpadding = "10"> <!-– border – obramowanie, cellpadding – rozmiar komórki -->
+                    <!-- Table header -->
+                    <thead>
+                    <tr> <!-- Table row -->
+                        <th></th>
+                        <th>Cena za miesiąc </th>
+                        <th>Maksymalna liczba członków</th>
+                        <th>Kategoria wiekowa</th>
+                        <th>Dyscyplina</th>
+                        <th>Trenerzy</th>
+                    </tr>
+                    </thead>
+                    <!-- Table body -->
+                    <tbody>
+                    <tr th:each = "group : ${groups}" >
+                        <td></td>
+                        <td th:text = "${group.pricePerMonth}">Cena za miesiąc</td>
+                        <td th:text = "${group.maxNumberOfMembers}">Maksymalna liczba członków</td>
+                        <td th:text = "${group.ageCategory}">Kategoria wiekowa</td>
+                        <td th:text = "${group.discipline.disciplineName}">Dyscyplina</td>
+                        <td>
+                    <span th:each="coach : ${group.coaches}">
+                        <a th:text="${coach.firstName} + ' ' + ${coach.lastName}"></a>
+                        <br />
+                    </span>
+                        </td>
+                    </tr>
+
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="map" style="height: 350px;"></div>
+<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
+<script th:inline="javascript">
+    var club = /*[[${club}]]*/ {};
+    var lat = /*[[${lat}]]*/ 0.0;
+    var lon = /*[[${lon}]]*/ 0.0;
+    const map = L.map('map').setView([lon, lat], 15);
+    L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png').addTo(map);
+    var marker = L.marker([lat, lon]).addTo(map);
+    marker.bindPopup(club.name).openPopup();
+</script>
+
+<div class="footer" th:object="${club}">
+    ©<span th:text="${club.name}"></span> Wszelkie prawa zastrzeżone.
+</div>
+
+<script th:src="@{/resources/static/js/logout.js}"></script>
+<script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+<script th:src="@{/webjars/popper.js/umd/popper.min.js}"></script>
+<script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+
+</body>
+</html>
+

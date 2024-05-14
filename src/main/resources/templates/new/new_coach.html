@@ -1,0 +1,153 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Workers</title>
+
+    <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css}"/>
+    <link th:rel="stylesheet" th:href="@{/css/new.css}">
+    <link th:rel="stylesheet" th:href="@{/css/nav.css}">
+
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg static-top">
+    <div class="container">
+        <a class="navbar-brand" href="/static">Klub lekkoatletyczny</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+                aria-controls="navbarResponsive"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ml-auto">
+
+                <li class="nav-item active">
+                    <div class="dropdown">
+                        <a class="nav-link" href="#">Tabele</a>
+                        <div class="dropdown-content">
+                            <a class="nav-link" href="/workers" th:if="${userRoles.contains('ADMIN')}">Pracownicy</a>
+                            <a class="nav-link" href="/coaches">Trenerzy </a>
+                            <a class="nav-link" href="/physiotherapists">Fizjoterapeuci</a>
+                            <a class="nav-link" href="/members" th:if="${userRoles.contains('ADMIN') || userRoles.contains('PHYSIOTHERAPIST')}">Członkowie </a>
+                            <a class="nav-link" href="/groups" th:if="${userRoles.contains('ADMIN') || userRoles.contains('COACH') || userRoles.contains('PHYSIOTHERAPIST') || userRoles.contains('MEMBER')}">Grupy </a>
+                            <a class="nav-link" href="/competitions">Zawody </a>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/main}">Strona główna</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/login}" th:if = "${userRoles.isEmpty()}">Zaloguj</a>
+                    <a class="nav-link" href="#" onclick="logoutForm.submit(); return false;" th:unless = "${userRoles.isEmpty()}">Wyloguj</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:inline="text" style="color:white;">
+                        <b>[[${#httpServletRequest.remoteUser}]]</b></a>
+                </li>
+
+                <form id="logoutForm" method="post" th:action="@{/index}" th:unless="${userRoles.isEmpty()}">
+                    <button type="submit" style="display: none;"></button>
+                </form>
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+<div>
+    <h1>Dodaj trenera</h1>
+    <div class="table-content">
+        <form action="#" th:action="@{/coaches/save}" th:object="${coach}" method="post">
+            <table border="1" cellpadding="10">
+                <tr>
+                    <td>Dane osobowe: </td>
+                    <td><input type="text" placeholder="Imię" required th:field="*{firstName}">
+                        <input type="text" placeholder="Nazwisko" required th:field="*{lastName}">
+                        <input type="text" placeholder="PESEL" th:field="*{pesel}"></td>
+                </tr>
+
+                <tr>
+                    <td>Konto: </td>
+                    <td>
+                        <input type="text" required placeholder="e-mail" th:field="*{account.email}"/>
+                        <input type="password" required placeholder="hasło" th:field="*{account.password}"/>
+                        <select style="display: none" th:field="*{account.role}">
+                            <option value="MEMBER" selected>COACH</option>
+                        </select>
+                        <div th:if="${emailExistsError}" style="color:red; margin-top:5px">
+                            Konto o podanym adresie email już istnieje.
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Data urodzenia: </td>
+                    <td><input type="date" required th:field="*{dateOfBirth}"></td>
+                </tr>
+
+                <tr>
+                    <td>Data zatrudnienia: </td>
+                    <td><input type="date" required th:field="*{employmentDate}"></td>
+                </tr>
+
+                <tr>
+                    <td>Numer telefonu: </td>
+                    <td><input type="text" placeholder="Numer telefonu" required th:field="*{phoneNumber}"></td>
+                </tr>
+
+                <tr>
+                    <td>Płeć: </td>
+                    <td>
+                        <input type="radio" required id="male" name="gender" value="M" th:field="*{gender}">
+                        <label for="male">Mężczyzna</label>
+
+                        <input type="radio" required id="female" name="gender" value="K" th:field="*{gender}">
+                        <label for="female">Kobieta</label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Adres: </td>
+                    <td>
+                        <input type="text" required placeholder="Miasto" th:field="*{address.city}">
+                        <input type="text" placeholder="Ulica" th:field="*{address.street}">
+                        <input type="text" required placeholder="Numer lokalu" th:field="*{address.apartmentNumber}">
+                        <input type="text" required placeholder="Kod pocztowy" th:field="*{address.mail.postalCode}">
+                    </td>
+                </tr>
+
+                <tr id="qualificationSelect">
+                    <td>Kwalifikacje: </td>
+                    <td>
+                        <select th:field="*{qualifications}">
+                            <option value = "Trener M" th:text="'Trener M'"></option>
+                            <option value = "Trener" th:text="'Trener'"></option>
+                            <option value = "Trener I" th:text="'Trener I'"></option>
+                            <option value = "Instruktor" th:text="'Instruktor'"></option>
+                        </select>
+                    </td>
+                </tr>
+
+                <tr id="experienceRow">
+                    <td>Doświadczenie: </td>
+                    <td><textarea type="text" style="width: 400px; height: 100px;" th:field="*{coachingExperience}"></textarea></td>
+                </tr>
+
+                <tr>
+                    <td colspan="2"><button type="submit">Zapisz</button></td>
+                </tr>
+
+            </table>
+        </form>
+    </div>
+
+</div>
+<script th:src="@{/resources/static/js/logout.js}"></script>
+</body>
+</html>

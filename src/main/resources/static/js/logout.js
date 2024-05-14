@@ -1,0 +1,1 @@
+var logoutForm = document.getElementById("logoutForm");

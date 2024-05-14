@@ -1,0 +1,114 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Groups</title>
+
+    <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} "/>
+    <link th:rel="stylesheet" th:href="@{/css/nav.css}">
+    <link th:rel="stylesheet" th:href="@{/css/table.css}">
+
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg static-top">
+    <div class="container">
+        <a class="navbar-brand" href="/">Klub lekkoatletyczny</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+                aria-controls="navbarResponsive"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ml-auto">
+
+                <li class="nav-item active">
+                    <div class="dropdown">
+                        <a class="nav-link" href="#">Tabele</a>
+                        <div class="dropdown-content">
+                            <a class="nav-link" href="/workers" th:if="${userRoles.contains('ADMIN')}">Pracownicy</a>
+                            <a class="nav-link" href="/coaches" th:if="${userRoles.contains('ADMIN') || userRoles.contains('PHYSIOTHERAPIST') || userRoles.contains('COACH') || userRoles.contains('MEMBER')}">Trenerzy </a>
+                            <a class="nav-link" href="/physiotherapists" th:if="${userRoles.contains('ADMIN') || userRoles.contains('PHYSIOTHERAPIST') || userRoles.contains('COACH') || userRoles.contains('MEMBER')}">Fizjoterapeuci</a>
+                            <a class="nav-link" href="/members" th:if="${userRoles.contains('ADMIN') || userRoles.contains('PHYSIOTHERAPIST')}">Członkowie </a>
+                            <a class="nav-link" href="/groups">Grupy </a>
+                            <a class="nav-link" href="/competitions">Zawody </a>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/main}">Strona główna</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/login}" th:if = "${userRoles.isEmpty()}">Zaloguj</a>
+                    <a class="nav-link" href="#" onclick="logoutForm.submit(); return false;" th:unless = "${userRoles.isEmpty()}">Wyloguj</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:inline="text" style="    color:white;">
+                        <b>[[${#httpServletRequest.remoteUser}]]</b></a>
+                </li>
+
+                <form id="logoutForm" method="post" th:action="@{/index}" th:unless="${userRoles.isEmpty()}">
+                    <button type="submit" style="display: none;"></button>
+                </form>
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="table-container">
+    <h1>Grupy</h1>
+
+    <a href="/groups/new" th:if="${userRoles.contains('ADMIN')}">Dodaj grupe</a>
+
+    <div class="table-content">
+        <!-- Table -->
+        <table border = "1" cellpadding = "10"> <!-– border – obramowanie, cellpadding – rozmiar komórki -->
+            <!-- Table header -->
+            <thead>
+            <tr> <!-- Table row -->
+                <th></th>
+                <th>Nr grupy</th> <!–- Table column -->
+                <th>Cena za miesiąc </th>
+                <th>Maksymalna liczba członków</th>
+                <th>Kategoria wiekowa</th>
+                <th>Dyscyplina</th>
+                <th>Numery trenerów</th>
+                <th></th>
+            </tr>
+            </thead>
+            <!-- Table body -->
+            <tbody>
+                <tr th:each = "group : ${groups}" th:onclick="|window.location.href='@{/groups/{groupNumber}(groupNumber=${group.groupNumber})}'|"
+                    title="Szczegóły">
+                    <td></td>
+                    <td th:text = "${group.groupNumber}">Nr grupy</td>
+                    <td th:text = "${group.pricePerMonth}">Cena za miesiąc</td>
+                    <td th:text = "${group.maxNumberOfMembers}">Maksymalna liczba członków</td>
+                    <td th:text = "${group.ageCategory}">Kategoria wiekowa</td>
+                    <td th:text = "${group.discipline.disciplineName}">Dyscyplina</td>
+                    <td>
+                    <span th:each="coach : ${group.coaches}">
+                        <a th:href="@{'/coaches/' + ${coach.employeeNumber}}" th:text="${coach.firstName} + ' ' + ${coach.lastName}"></a>
+                        <br />
+                    </span>
+                    </td>
+
+                    <td >
+                        <a th:href="@{'/groups/edit/' + ${group.groupNumber}}" th:if="${userRoles.contains('ADMIN')}">Edytuj</a>
+                        <br/>
+                        <a th:href="@{'/groups/delete/' + ${group.groupNumber}}" th:if="${userRoles.contains('ADMIN')}" onclick="return confirm('Czy na pewno chcesz usunąć grupę?')">Usuń</a>
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+
+    </div>
+</div>
+<script th:src="@{/resources/static/js/logout.js}"></script>
+</body>
+</html>

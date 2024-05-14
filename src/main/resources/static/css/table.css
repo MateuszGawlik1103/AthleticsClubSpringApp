@@ -1,0 +1,35 @@
+.table-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 10px;
+}
+
+.table-content {
+    max-width: 80%;
+    width: auto;
+    height: 80%;
+    overflow: auto;
+    margin: auto auto 50px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+table {
+    border-color: transparent;
+}
+
+thead {
+    background: #62a555;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+tbody tr:hover {
+    background-color: #e8e8e8;
+    cursor: pointer;
+}
+
